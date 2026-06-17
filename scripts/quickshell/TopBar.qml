@@ -673,8 +673,7 @@ Variants {
                                 id: searchMouse
                                 anchors.fill: parent
                                 hoverEnabled: true
-                                onClicked: Quickshell.execDetached(["bash", "-c", "~/.config/hypr/scripts/qs_manager.sh toggle applauncher"])
-                            }
+                                onClicked: Quickshell.execDetached(["wofi", "--show", "drun"])                            }
                         }
 
                         Rectangle {
