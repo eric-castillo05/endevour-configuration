@@ -45,40 +45,36 @@ if ! [[ "$SEQ_END" =~ ^[0-9]+$ ]]; then
 fi
 
 print_workspaces() {
-    # Get raw data with a timeout fallback
     spaces=$(timeout 2 hyprctl workspaces -j 2>/dev/null)
     active=$(timeout 2 hyprctl activeworkspace -j 2>/dev/null | jq '.id')
 
-    # Failsafe if hyprctl crashes to prevent jq from outputting errors
     if [ -z "$spaces" ] || [ -z "$active" ]; then return; fi
 
-    # Generate the JSON and write it atomically to prevent UI flickering
     echo "$spaces" | jq --unbuffered --argjson a "$active" --arg end "$SEQ_END" -c '
-        # Create a map of workspace ID -> workspace data for easy lookup
         (map( { (.id|tostring): . } ) | add) as $s
         |
-        # Iterate from 1 to SEQ_END
-        [range(1; ($end|tonumber) + 1)] | map(
+        ([range(1; ($end|tonumber) + 1)] | map(
             . as $i |
-            # Determine state: active -> occupied -> empty
             (if $i == $a then "active"
              elif ($s[$i|tostring] != null and $s[$i|tostring].windows > 0) then "occupied"
              else "empty" end) as $state |
-
-            # Get window title for tooltip (if exists)
             (if $s[$i|tostring] != null then $s[$i|tostring].lastwindowtitle else "Empty" end) as $win |
-
-            {
-                id: $i,
-                state: $state,
-                tooltip: $win
-            }
-        )
+            { id: ($i|tostring), state: $state, tooltip: $win, special: false }
+        )) as $normal
+        |
+        ([.[] | select(.name | startswith("special:"))] | map(
+            . as $w |
+            (if $w.id == $a then "active"
+             elif $w.windows > 0 then "occupied"
+             else "empty" end) as $state |
+            { id: $w.name, state: $state, tooltip: ($w.lastwindowtitle // "Empty"), special: true }
+        )) as $specials
+        |
+        $normal + $specials
     ' > "$QS_RUN_WORKSPACES/workspaces.tmp"
-    
+
     mv "$QS_RUN_WORKSPACES/workspaces.tmp" "$QS_RUN_WORKSPACES/workspaces.json"
 }
-
 # Print initial state
 print_workspaces
 

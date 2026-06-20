@@ -19,7 +19,7 @@ hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
 -- ───────── Binds dinamicos (settings) ─────────
-hl.bind("ALT + F4", hl.dsp.window.close())
+hl.bind("ALT + Q", hl.dsp.window.close())
 hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.float({ action = "toggle" }))
 
 hl.bind(mainMod .. " + SHIFT + left",  hl.dsp.window.resize({ x = -50, y = 0,   relative = true }), { repeating = true })
@@ -91,3 +91,9 @@ hl.bind(mainMod .. " + TAB", hl.dsp.exec_cmd("~/.config/hypr/scripts/focus_next_
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ mode = 1 }))
 -- Wofi
 hl.bind("CTRL + SPACE", hl.dsp.exec_cmd("wofi --show drun"))
+
+-- Scratch pad --
+--hl.bind(mainMod .. + " + SHIFT + A", hl.dsp.workspace.toggle_special("magic"))
+--hl.bind(mainMod .. + " + SHIFT + Z", hl.dsp.window.move({ workspace = "special:magic" }))
+hl.bind(mainMod .. " + A",         hl.dsp.workspace.toggle_special("magic"))
+hl.bind(mainMod .. " + SHIFT + A", hl.dsp.window.move({ workspace = "special:magic" }))
